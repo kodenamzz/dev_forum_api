@@ -10,6 +10,7 @@ import { Connection } from 'mongoose';
       // connectionName: 'devDB',
       useFactory: async (config: ConfigService) => ({
         uri: config.get<string>('MONGODB_URL'),
+        dbName: 'dev_forum',
         connectionFactory: (connection: Connection) => {
           connection.on('connected', () => {
             Logger.log('DB connected');
