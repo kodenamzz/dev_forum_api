@@ -7,8 +7,19 @@ import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { QuestionsModule } from './questions/questions.module';
 
+const ENV = process.env.NODE_ENV;
+
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, HealthModule, UsersModule, QuestionsModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: !ENV ? '.env.development' : `.env.${ENV}`,
+      isGlobal: true,
+    }),
+    DatabaseModule,
+    HealthModule,
+    UsersModule,
+    QuestionsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

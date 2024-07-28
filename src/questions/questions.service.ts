@@ -2,9 +2,9 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Question } from 'src/database/schemas/question.schema';
+import { Question } from '../database/schemas/question.schema';
 import { Model } from 'mongoose';
-import { Tag } from 'src/database/schemas/tag.schema';
+import { Tag } from '../database/schemas/tag.schema';
 
 @Injectable()
 export class QuestionsService {
@@ -41,8 +41,8 @@ export class QuestionsService {
     }
   }
 
-  findAll() {
-    return `This action returns all questions`;
+  async findAll() {
+    return await this.questionModel.find().populate('tags');
   }
 
   findOne(id: number) {

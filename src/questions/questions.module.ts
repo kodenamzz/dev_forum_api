@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { QuestionsController } from './questions.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Question, QuestionSchema } from 'src/database/schemas/question.schema';
-import { Tag, TagSchema } from 'src/database/schemas/tag.schema';
+import { Question, QuestionSchema } from '../database/schemas/question.schema';
+import { Tag, TagSchema } from '../database/schemas/tag.schema';
 
 @Module({
   imports: [
