@@ -13,7 +13,7 @@ export class QuestionsService {
     @InjectModel(Tag.name) private tagModel: Model<Tag>,
   ) {}
 
-  async create(createQuestionDto: CreateQuestionDto) {
+  async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
     const { tags, ...newQuestion } = createQuestionDto;
 
     try {
@@ -41,7 +41,7 @@ export class QuestionsService {
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Question[]> {
     return await this.questionModel.find().populate('tags');
   }
 

@@ -14,6 +14,7 @@ import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Response } from 'express';
+import { Question } from 'src/database/schemas/question.schema';
 
 @Controller('questions')
 export class QuestionsController {
@@ -25,7 +26,8 @@ export class QuestionsController {
     @Res() res: Response,
   ) {
     try {
-      const question = await this.questionsService.create(createQuestionDto);
+      const question: Question =
+        await this.questionsService.create(createQuestionDto);
       res.status(HttpStatus.CREATED).send({ question });
     } catch (error) {
       throw new HttpException(
