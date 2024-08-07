@@ -18,7 +18,7 @@ export class Question {
   tags: Tag[];
 
   @Prop({ default: 0 })
-  view: number;
+  views: number;
 
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
   upvotes: User[];
@@ -30,7 +30,7 @@ export class Question {
   author: User;
 
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Answer' }])
-  answer: Answer[];
+  answers: Answer[];
 
   @Prop({ default: Date.now })
   createdAt: Date;

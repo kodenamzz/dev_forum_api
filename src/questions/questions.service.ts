@@ -4,13 +4,15 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Question } from '../database/schemas/question.schema';
 import { Model } from 'mongoose';
-import { Tag } from '../database/schemas/tag.schema';
+import { Tag, TagSchema } from '../database/schemas/tag.schema';
+import { User } from '../database/schemas/user.schema';
 
 @Injectable()
 export class QuestionsService {
   constructor(
     @InjectModel(Question.name) private questionModel: Model<Question>,
     @InjectModel(Tag.name) private tagModel: Model<Tag>,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
@@ -42,7 +44,11 @@ export class QuestionsService {
   }
 
   async findAll(): Promise<Question[]> {
-    return await this.questionModel.find().populate('tags');
+    return await this.questionModel
+      .find({})
+      .populate({ path: 'tags', model: this.tagModel })
+      .populate({ path: 'author', model: this.userModel })
+      .sort({ createdAt: -1 });
   }
 
   findOne(id: number) {

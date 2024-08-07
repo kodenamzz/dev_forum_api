@@ -34,6 +34,7 @@ describe('AppController (e2e)', () => {
         })
         .catch((err) => {
           console.error('Error dropping database:', err);
+          process.exit(1);
         });
     });
   });

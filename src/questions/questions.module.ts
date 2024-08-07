@@ -4,6 +4,7 @@ import { QuestionsController } from './questions.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Question, QuestionSchema } from '../database/schemas/question.schema';
 import { Tag, TagSchema } from '../database/schemas/tag.schema';
+import { User, UserSchema } from '../database/schemas/user.schema';
 
 @Module({
   imports: [
@@ -15,6 +16,10 @@ import { Tag, TagSchema } from '../database/schemas/tag.schema';
       {
         name: Tag.name,
         schema: TagSchema,
+      },
+      {
+        name: User.name,
+        schema: UserSchema,
       },
     ]),
   ],
