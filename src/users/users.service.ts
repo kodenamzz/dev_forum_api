@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../database/schemas/user.schema';
+import { User, UserDocument } from '../database/schemas/user.schema';
 import { Model } from 'mongoose';
 import { Question } from '../database/schemas/question.schema';
 
@@ -13,7 +13,7 @@ export class UsersService {
     @InjectModel(Question.name) private questionModel: Model<Question>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto): Promise<UserDocument> {
     try {
       const newUser = await this.userModel.create(createUserDto);
       return newUser;
@@ -42,18 +42,23 @@ export class UsersService {
     }
   }
 
-  async updateUser(updateUserDto: UpdateUserDto) {
+  async updateUser(updateUserDto: UpdateUserDto): Promise<UserDocument> {
     try {
       const { clerkId } = updateUserDto;
-      await this.userModel.findOneAndUpdate({ clerkId }, updateUserDto, {
-        new: true,
-      });
+      const updatedUser = await this.userModel.findOneAndUpdate(
+        { clerkId },
+        updateUserDto,
+        {
+          new: true,
+        },
+      );
+      return updatedUser;
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
-  async deleteUser(clerkId: string) {
+  async deleteUser(clerkId: string): Promise<UserDocument> {
     try {
       const user = await this.userModel.findOneAndDelete({ clerkId });
 

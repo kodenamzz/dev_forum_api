@@ -1,12 +1,21 @@
 import { WebhookEvent } from '@clerk/clerk-sdk-node';
-import { Controller, Post, RawBodyRequest, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  InternalServerErrorException,
+  Logger,
+  Post,
+  RawBodyRequest,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
-import { UsersService } from '../users/users.service';
 import { Webhook } from 'svix';
+import { WebhooksService } from './webhooks.service';
+import { UserDocument } from '../database/schemas/user.schema';
 
 @Controller('webhooks')
 export class WebhooksController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly webhooksService: WebhooksService) {}
 
   @Post()
   async clerkWebhookHandler(
@@ -56,60 +65,29 @@ export class WebhooksController {
 
     // Do something with the payload
 
-    const eventType = evt.type;
+    try {
+      const eventType = evt.type;
+      let result: UserDocument;
 
-    if (eventType === 'user.created') {
-      const {
-        id,
-        email_addresses,
-        image_url,
-        username,
-        first_name,
-        last_name,
-      } = evt.data;
+      Logger.debug(`eventType -> ${eventType}`);
+      switch (eventType) {
+        case 'user.created':
+          result = await this.webhooksService.handleUserCreated(evt.data);
+          break;
+        case 'user.updated':
+          result = await this.webhooksService.handleUserUpdated(evt.data);
+          break;
+        case 'user.deleted':
+          result = await this.webhooksService.handleUserDeleted(evt.data);
+          break;
+        default:
+          return res.status(200).json({ message: 'Event type not handled' });
+      }
 
-      // Create a new user in your database
-      const mongoUser = await this.usersService.createUser({
-        clerkId: id,
-        name: `${first_name}${last_name ? ` ${last_name}` : ''}`,
-        username: username!,
-        email: email_addresses[0].email_address,
-        picture: image_url,
-      });
-
-      return res.status(200).json({ message: 'OK', user: mongoUser });
+      return res.status(200).json({ message: 'OK', result });
+    } catch (error) {
+      console.error('Error handling webhook event:', error.message);
+      throw new InternalServerErrorException('Failed to handle webhook event');
     }
-
-    if (eventType === 'user.updated') {
-      const {
-        id,
-        email_addresses,
-        image_url,
-        username,
-        first_name,
-        last_name,
-      } = evt.data;
-
-      // Create a new user in your database
-      const mongoUser = await this.usersService.updateUser({
-        clerkId: id,
-        name: `${first_name}${last_name ? ` ${last_name}` : ''}`,
-        username: username!,
-        email: email_addresses[0].email_address,
-        picture: image_url,
-      });
-
-      return res.status(200).json({ message: 'OK', user: mongoUser });
-    }
-
-    if (eventType === 'user.deleted') {
-      const { id } = evt.data;
-
-      const deletedUser = await this.usersService.deleteUser(id);
-
-      return res.status(200).json({ message: 'OK', user: deletedUser });
-    }
-
-    return res.status(200).json({ message: 'OK' });
   }
 }
