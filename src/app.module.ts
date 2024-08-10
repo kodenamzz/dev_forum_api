@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { QuestionsModule } from './questions/questions.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -19,6 +20,7 @@ const ENV = process.env.NODE_ENV;
     HealthModule,
     UsersModule,
     QuestionsModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,7 +14,7 @@ import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Response } from 'express';
-import { Question } from 'src/database/schemas/question.schema';
+import { Question } from '../database/schemas/question.schema';
 
 @Controller('questions')
 export class QuestionsController {
