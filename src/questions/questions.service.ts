@@ -26,7 +26,7 @@ export class QuestionsService {
       for (const tag of tags) {
         const existingTag = await this.tagModel.findOneAndUpdate(
           { name: { $regex: new RegExp(`^${tag}$`, 'i') } },
-          { $setOnInsert: { name: tag }, $push: { question: question._id } },
+          { $setOnInsert: { name: tag }, $push: { questions: question._id } },
           { upsert: true, new: true },
         );
 

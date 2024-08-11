@@ -13,7 +13,7 @@ export class Tag {
   @Prop()
   description: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Question' })
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }])
   questions: Question[];
 
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
