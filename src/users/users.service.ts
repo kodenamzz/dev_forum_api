@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../database/schemas/user.schema';
 import { Model } from 'mongoose';
 import { Question } from '../database/schemas/question.schema';
+import { GetAllUsersDto } from './dto/get-all-users.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,8 +24,18 @@ export class UsersService {
     }
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(query: GetAllUsersDto) {
+    try {
+      // console.log('query', query);
+      const users = await this.userModel.find({}).sort({ joinedAt: -1 });
+      return users;
+    } catch (error) {
+      Logger.error('something went wrong with get users', error);
+      throw new HttpException(
+        'Something went wrong please try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findOne(id: string) {
