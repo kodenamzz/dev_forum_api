@@ -41,12 +41,6 @@ describe('AppController (e2e)', () => {
 
   afterAll(() => mongoose.disconnect());
 
-  const question = {
-    title: 'test title',
-    content: 'test content',
-    tags: ['react', 'nest'],
-    author: '66a53f08f4635a2468623031',
-  };
   describe('System', () => {
     it('/ (GET)', () => {
       return request(app.getHttpServer())
@@ -64,6 +58,12 @@ describe('AppController (e2e)', () => {
     });
   });
 
+  const question = {
+    title: 'test title',
+    content: 'test content',
+    tags: ['react', 'nest'],
+    author: '66a53f08f4635a2468623031',
+  };
   describe('Questions', () => {
     it('/questions (POST)', () => {
       return request(app.getHttpServer())
@@ -78,6 +78,37 @@ describe('AppController (e2e)', () => {
     it('/questions (GET)', () => {
       return request(app.getHttpServer())
         .get('/questions')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeInstanceOf(Array);
+          expect(res.body).not.toHaveLength(0);
+        });
+    });
+  });
+
+  const user = {
+    clerkId: 'user_2kTjHBpsuz9oC4YeR3JsOPg52Uf',
+    name: 'Abdulkode Pohlor',
+    username: 'kodenamzz',
+    email: 'abdkode.p@gmail.com',
+    picture: 'https://placehold.co/600x400',
+  };
+
+  describe('Users', () => {
+    it('/users (POST)', () => {
+      return request(app.getHttpServer())
+        .post('/users')
+        .send(user)
+        .expect(HttpStatus.CREATED)
+        .then((res) => {
+          expect(res.body.user._id).toBeDefined();
+          expect(res.body.user.clerkId).toEqual(user.clerkId);
+          expect(res.body.user.name).toEqual(user.name);
+        });
+    });
+    it('/users (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/users')
         .expect(200)
         .then((res) => {
           expect(res.body).toBeInstanceOf(Array);
