@@ -111,8 +111,20 @@ describe('AppController (e2e)', () => {
         .get('/users')
         .expect(200)
         .then((res) => {
-          expect(res.body).toBeInstanceOf(Array);
-          expect(res.body).not.toHaveLength(0);
+          expect(res.body.users).toBeInstanceOf(Array);
+          expect(res.body.users).not.toHaveLength(0);
+        });
+    });
+  });
+
+  describe('Tags', () => {
+    it('/tags (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/tags')
+        .expect(200)
+        .then((res) => {
+          expect(res.body.tags).toBeInstanceOf(Array);
+          expect(res.body.tags).toHaveLength(question.tags.length);
         });
     });
   });

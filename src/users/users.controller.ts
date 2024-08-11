@@ -15,7 +15,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
-import { UserDocument } from 'src/database/schemas/user.schema';
+import { UserDocument } from '../database/schemas/user.schema';
 import { Response } from 'express';
 
 @Controller('users')

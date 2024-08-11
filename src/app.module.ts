@@ -7,6 +7,7 @@ import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { QuestionsModule } from './questions/questions.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { TagsModule } from './tags/tags.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -21,6 +22,7 @@ const ENV = process.env.NODE_ENV;
     UsersModule,
     QuestionsModule,
     WebhooksModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

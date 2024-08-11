@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../database/schemas/user.schema';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { Question } from '../database/schemas/question.schema';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 
@@ -24,11 +24,49 @@ export class UsersService {
     }
   }
 
-  async findAll(query: GetAllUsersDto) {
+  async findAll(getAllUsersDto: GetAllUsersDto) {
     try {
-      // console.log('query', query);
-      const users = await this.userModel.find({}).sort({ joinedAt: -1 });
-      return users;
+      const { searchQuery, filter, page = 1, pageSize = 10 } = getAllUsersDto;
+      const skipAmount = (page - 1) * pageSize;
+
+      // prepare query
+
+      const query: FilterQuery<typeof User> = {};
+
+      if (searchQuery) {
+        const escapedSearchQuery = searchQuery.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          '\\$&',
+        );
+        query.$or = [{ name: { $regex: new RegExp(escapedSearchQuery, 'i') } }];
+      }
+
+      let sortOptions = {};
+
+      switch (filter) {
+        case 'recent':
+          sortOptions = { joinedAt: -1 };
+          break;
+        case 'name':
+          sortOptions = { name: 1 };
+          break;
+        case 'old':
+          sortOptions = { joinedAt: 1 };
+          break;
+
+        default:
+          break;
+      }
+
+      const totalTags = await this.userModel.countDocuments(query);
+      const users = await this.userModel
+        .find(query)
+        .sort(sortOptions)
+        .skip(skipAmount)
+        .limit(pageSize);
+
+      const isNext = totalTags > skipAmount + users.length;
+      return { users, isNext };
     } catch (error) {
       Logger.error('something went wrong with get users', error);
       throw new HttpException(
