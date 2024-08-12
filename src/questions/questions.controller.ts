@@ -9,18 +9,21 @@ import {
   HttpException,
   HttpStatus,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { Response } from 'express';
 import { Question } from '../database/schemas/question.schema';
+import { ClerkAuthGuard } from '../clerk-auth/clerk-auth.guard';
 
 @Controller('questions')
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @Post()
+  @UseGuards(ClerkAuthGuard)
   async create(
     @Body() createQuestionDto: CreateQuestionDto,
     @Res() res: Response,

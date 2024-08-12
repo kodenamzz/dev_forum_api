@@ -1,16 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { CanActivate, HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import mongoose from 'mongoose';
+import { ClerkAuthGuard } from '../src/clerk-auth/clerk-auth.guard';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
+    const mock_ForceFailGuard: CanActivate = {
+      canActivate: jest.fn(() => true),
+    };
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideGuard(ClerkAuthGuard)
+      .useValue(mock_ForceFailGuard)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
