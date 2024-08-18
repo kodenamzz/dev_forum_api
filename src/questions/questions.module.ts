@@ -5,6 +5,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Question, QuestionSchema } from '../database/schemas/question.schema';
 import { Tag, TagSchema } from '../database/schemas/tag.schema';
 import { User, UserSchema } from '../database/schemas/user.schema';
+import {
+  Interaction,
+  InteractionSchema,
+} from 'src/database/schemas/Interaction.schema';
+import { Answer, AnswerSchema } from 'src/database/schemas/answer.schema';
 
 @Module({
   imports: [
@@ -20,6 +25,14 @@ import { User, UserSchema } from '../database/schemas/user.schema';
       {
         name: User.name,
         schema: UserSchema,
+      },
+      {
+        name: Answer.name,
+        schema: AnswerSchema,
+      },
+      {
+        name: Interaction.name,
+        schema: InteractionSchema,
       },
     ]),
   ],

@@ -4,8 +4,10 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Question } from '../database/schemas/question.schema';
 import { Model } from 'mongoose';
-import { Tag, TagSchema } from '../database/schemas/tag.schema';
+import { Tag } from '../database/schemas/tag.schema';
 import { User } from '../database/schemas/user.schema';
+import { Answer } from 'src/database/schemas/answer.schema';
+import { Interaction } from 'src/database/schemas/Interaction.schema';
 
 @Injectable()
 export class QuestionsService {
@@ -13,6 +15,8 @@ export class QuestionsService {
     @InjectModel(Question.name) private questionModel: Model<Question>,
     @InjectModel(Tag.name) private tagModel: Model<Tag>,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Answer.name) private answerModel: Model<Answer>,
+    @InjectModel(Interaction.name) private interactionModel: Model<Interaction>,
   ) {}
 
   async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
@@ -51,15 +55,33 @@ export class QuestionsService {
       .sort({ createdAt: -1 });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} question`;
+  async findOne(questionId: string) {
+    return await this.questionModel
+      .findById(questionId)
+      .populate({ path: 'tags', model: this.tagModel, select: '_id name' })
+      .populate({
+        path: 'author',
+        model: this.userModel,
+        select: '_id clerkId name picture',
+      });
   }
 
   update(id: number, updateQuestionDto: UpdateQuestionDto) {
     return `This action updates a #${id} question`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} question`;
+  async remove(questionId: string) {
+    try {
+      await this.questionModel.deleteOne({ _id: questionId });
+      await this.answerModel.deleteMany({ question: questionId });
+      await this.interactionModel.deleteMany({ question: questionId });
+      await this.tagModel.updateMany(
+        { questions: questionId },
+        { $pull: { questions: questionId } },
+      );
+    } catch (error) {
+      Logger.error('can not remove question', error);
+      throw error;
+    }
   }
 }
