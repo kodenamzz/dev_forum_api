@@ -6,7 +6,8 @@ import { Answer } from '../database/schemas/answer.schema';
 import { Model } from 'mongoose';
 import { Question } from '../database/schemas/question.schema';
 import { GetAllAnswersDto } from './dto/get-all-answers.dto';
-import { User } from 'src/database/schemas/user.schema';
+import { User } from '../database/schemas/user.schema';
+import { AnswerVoteDto } from './dto/answer-vote-dto';
 
 @Injectable()
 export class AnswersService {
@@ -64,6 +65,68 @@ export class AnswersService {
 
   findOne(id: number) {
     return `This action returns a #${id} answer`;
+  }
+
+  async upvoteAnswer(answerVoteDto: AnswerVoteDto) {
+    const { answerId, userId, hasupVoted, hasdownVoted } = answerVoteDto;
+
+    let updateQuery = {};
+
+    if (hasupVoted) {
+      updateQuery = { $pull: { upvotes: userId } };
+    } else if (hasdownVoted) {
+      updateQuery = {
+        $pull: { downvotes: userId },
+        $push: { upvotes: userId },
+      };
+    } else {
+      updateQuery = { $addToSet: { upvotes: userId } };
+    }
+
+    const answer = await this.answerModel.findByIdAndUpdate(
+      answerId,
+      updateQuery,
+      { new: true },
+    );
+
+    if (!answer) {
+      throw new Error('Answer not found');
+    }
+
+    // TODO  Increment author's reputation
+
+    return answer;
+  }
+
+  async downvoteAnswer(answerVoteDto: AnswerVoteDto) {
+    const { answerId, userId, hasupVoted, hasdownVoted } = answerVoteDto;
+
+    let updateQuery = {};
+
+    if (hasdownVoted) {
+      updateQuery = { $pull: { downvotes: userId } };
+    } else if (hasupVoted) {
+      updateQuery = {
+        $pull: { upvotes: userId },
+        $push: { downvotes: userId },
+      };
+    } else {
+      updateQuery = { $addToSet: { downvotes: userId } };
+    }
+
+    const answer = await this.answerModel.findByIdAndUpdate(
+      answerId,
+      updateQuery,
+      { new: true },
+    );
+
+    if (!answer) {
+      throw new Error('Answer not found');
+    }
+
+    // TODO  Increment author's reputation
+
+    return answer;
   }
 
   update(id: number, updateAnswerDto: UpdateAnswerDto) {

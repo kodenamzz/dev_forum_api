@@ -50,7 +50,7 @@ describe('AppController (e2e)', () => {
   afterAll(() => mongoose.disconnect());
 
   describe('System', () => {
-    it('/ (GET)', () => {
+    it('(GET) /', () => {
       return request(app.getHttpServer())
         .get('/')
         .expect(200)
@@ -78,7 +78,7 @@ describe('AppController (e2e)', () => {
   let createdUser = null;
 
   describe('Users', () => {
-    it('/users (POST)', () => {
+    it('(POST) /users', () => {
       return request(app.getHttpServer())
         .post('/users')
         .send(user)
@@ -90,7 +90,7 @@ describe('AppController (e2e)', () => {
           expect(res.body.user.name).toEqual(user.name);
         });
     });
-    it('/users (GET)', () => {
+    it('(GET) /users', () => {
       return request(app.getHttpServer())
         .get('/users')
         .expect(200)
@@ -115,7 +115,7 @@ describe('AppController (e2e)', () => {
       ...question,
       author: createdUser?._id,
     };
-    it('/questions (POST)', () => {
+    it('(POST) /questions', () => {
       return request(app.getHttpServer())
         .post('/questions')
         .send(question)
@@ -126,7 +126,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('/questions (GET)', () => {
+    it('(GET) /questions', () => {
       return request(app.getHttpServer())
         .get('/questions')
         .expect(200)
@@ -136,13 +136,70 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('/questions/id (GET)', () => {
+    it('(GET) /questions/id', () => {
       return request(app.getHttpServer())
         .get(`/questions/${createdQuestion._id}`)
         .expect(200)
         .then((res) => {
           expect(res.body._id).toBeDefined();
           expect(res.body._id).toEqual(createdQuestion._id);
+        });
+    });
+
+    it('(PUT) /questions/upvote [not upvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/questions/upvote`)
+        .send({
+          questionId: createdQuestion._id,
+          userId: createdUser._id,
+          hasupVoted: false,
+          hasdownVoted: false,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.upvotes).toContain(createdUser._id);
+        });
+    });
+    it('(PUT) /questions/upvote [had upvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/questions/upvote`)
+        .send({
+          questionId: createdQuestion._id,
+          userId: createdUser._id,
+          hasupVoted: true,
+          hasdownVoted: false,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.upvotes).not.toContain(createdUser._id);
+        });
+    });
+    it('(PUT) /questions/downvote [not downvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/questions/downvote`)
+        .send({
+          questionId: createdQuestion._id,
+          userId: createdUser._id,
+          hasupVoted: false,
+          hasdownVoted: false,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.downvotes).toContain(createdUser._id);
+        });
+    });
+    it('(PUT) /questions/downvote [had downvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/questions/downvote`)
+        .send({
+          questionId: createdQuestion._id,
+          userId: createdUser._id,
+          hasupVoted: false,
+          hasdownVoted: true,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.downvotes).not.toContain(createdUser._id);
         });
     });
   });
@@ -156,7 +213,8 @@ describe('AppController (e2e)', () => {
     question: '',
   };
   describe('Answers', () => {
-    it('/answers (POST)', () => {
+    let createdAnswerId = '';
+    it('(POST) /answers', () => {
       answerData = {
         ...answerData,
         author: createdUser?._id,
@@ -167,10 +225,11 @@ describe('AppController (e2e)', () => {
         .send(answerData)
         .expect(HttpStatus.CREATED)
         .then((res) => {
+          createdAnswerId = res.body.answer._id;
           expect(res.body.answer._id).toBeDefined();
         });
     });
-    it('/answers (GET)', () => {
+    it('(GET) /answers', () => {
       return request(app.getHttpServer())
         .get(`/answers?questionId=${createdQuestion?._id}`)
         .expect(200)
@@ -179,11 +238,68 @@ describe('AppController (e2e)', () => {
           expect(res.body.answers).not.toHaveLength(0);
         });
     });
+
+    it('(PUT) /answers/upvote [not upvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/answers/upvote`)
+        .send({
+          answerId: createdAnswerId,
+          userId: createdUser._id,
+          hasupVoted: false,
+          hasdownVoted: false,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.upvotes).toContain(createdUser._id);
+        });
+    });
+    it('(PUT) /answers/upvote [had upvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/answers/upvote`)
+        .send({
+          answerId: createdAnswerId,
+          userId: createdUser._id,
+          hasupVoted: true,
+          hasdownVoted: false,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.upvotes).not.toContain(createdUser._id);
+        });
+    });
+    it('(PUT) /answers/downvote [not downvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/answers/downvote`)
+        .send({
+          answerId: createdAnswerId,
+          userId: createdUser._id,
+          hasupVoted: false,
+          hasdownVoted: false,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.downvotes).toContain(createdUser._id);
+        });
+    });
+    it('(PUT) /answers/downvote [had downvoted before]', () => {
+      return request(app.getHttpServer())
+        .put(`/answers/downvote`)
+        .send({
+          answerId: createdAnswerId,
+          userId: createdUser._id,
+          hasupVoted: false,
+          hasdownVoted: true,
+        })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.downvotes).not.toContain(createdUser._id);
+        });
+    });
   });
 
   // TAG --------------------------
   describe('Tags', () => {
-    it('/tags (GET)', () => {
+    it('(GET) /tags', () => {
       return request(app.getHttpServer())
         .get('/tags')
         .expect(200)

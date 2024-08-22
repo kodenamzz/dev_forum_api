@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Query,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
@@ -18,7 +19,8 @@ import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { AnswerDocument } from '../database/schemas/answer.schema';
 import { Response } from 'express';
 import { GetAllAnswersDto } from './dto/get-all-answers.dto';
-import { ClerkAuthGuard } from 'src/clerk-auth/clerk-auth.guard';
+import { ClerkAuthGuard } from '../clerk-auth/clerk-auth.guard';
+import { AnswerVoteDto } from './dto/answer-vote-dto';
 
 @Controller('answers')
 export class AnswersController {
@@ -47,6 +49,37 @@ export class AnswersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.answersService.findOne(+id);
+  }
+
+  @Put('upvote')
+  async upvoteAnswer(
+    @Body() answerVoteDto: AnswerVoteDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const answer = await this.answersService.upvoteAnswer(answerVoteDto);
+      res.status(HttpStatus.OK).send(answer);
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong please try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Put('downvote')
+  async downvoteAnswer(
+    @Body() answerVoteDto: AnswerVoteDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const answer = await this.answersService.downvoteAnswer(answerVoteDto);
+      res.status(HttpStatus.OK).send(answer);
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong please try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Patch(':id')

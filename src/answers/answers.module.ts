@@ -4,7 +4,7 @@ import { AnswersController } from './answers.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Answer, AnswerSchema } from '../database/schemas/answer.schema';
 import { Question, QuestionSchema } from '../database/schemas/question.schema';
-import { User, UserSchema } from 'src/database/schemas/user.schema';
+import { User, UserSchema } from '../database/schemas/user.schema';
 
 @Module({
   imports: [

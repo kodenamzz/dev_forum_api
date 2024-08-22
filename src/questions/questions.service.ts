@@ -11,6 +11,7 @@ import { Tag } from '../database/schemas/tag.schema';
 import { User } from '../database/schemas/user.schema';
 import { Answer } from '../database/schemas/answer.schema';
 import { Interaction } from '../database/schemas/Interaction.schema';
+import { QuestionVoteDto } from './dto/question-vote-dto';
 
 @Injectable()
 export class QuestionsService {
@@ -69,6 +70,68 @@ export class QuestionsService {
         model: this.userModel,
         select: '_id clerkId name picture',
       });
+  }
+
+  async upvoteQuestion(questionVoteDto: QuestionVoteDto) {
+    const { questionId, userId, hasupVoted, hasdownVoted } = questionVoteDto;
+
+    let updateQuery = {};
+
+    if (hasupVoted) {
+      updateQuery = { $pull: { upvotes: userId } };
+    } else if (hasdownVoted) {
+      updateQuery = {
+        $pull: { downvotes: userId },
+        $push: { upvotes: userId },
+      };
+    } else {
+      updateQuery = { $addToSet: { upvotes: userId } };
+    }
+
+    const question = await this.questionModel.findByIdAndUpdate(
+      questionId,
+      updateQuery,
+      { new: true },
+    );
+
+    if (!question) {
+      throw new Error('Question not found');
+    }
+
+    // TODO  Increment author's reputation
+
+    return question;
+  }
+
+  async downvoteQuestion(questionVoteDto: QuestionVoteDto) {
+    const { questionId, userId, hasupVoted, hasdownVoted } = questionVoteDto;
+
+    let updateQuery = {};
+
+    if (hasdownVoted) {
+      updateQuery = { $pull: { downvotes: userId } };
+    } else if (hasupVoted) {
+      updateQuery = {
+        $pull: { upvotes: userId },
+        $push: { downvotes: userId },
+      };
+    } else {
+      updateQuery = { $addToSet: { downvotes: userId } };
+    }
+
+    const question = await this.questionModel.findByIdAndUpdate(
+      questionId,
+      updateQuery,
+      { new: true },
+    );
+
+    if (!question) {
+      throw new Error('Question not found');
+    }
+
+    // TODO  Increment author's reputation
+
+    return question;
   }
 
   update(id: number, updateQuestionDto: UpdateQuestionDto) {
