@@ -2,12 +2,15 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Question } from '../database/schemas/question.schema';
+import {
+  Question,
+  QuestionDocument,
+} from '../database/schemas/question.schema';
 import { Model } from 'mongoose';
 import { Tag } from '../database/schemas/tag.schema';
 import { User } from '../database/schemas/user.schema';
-import { Answer } from 'src/database/schemas/answer.schema';
-import { Interaction } from 'src/database/schemas/Interaction.schema';
+import { Answer } from '../database/schemas/answer.schema';
+import { Interaction } from '../database/schemas/Interaction.schema';
 
 @Injectable()
 export class QuestionsService {
@@ -19,7 +22,9 @@ export class QuestionsService {
     @InjectModel(Interaction.name) private interactionModel: Model<Interaction>,
   ) {}
 
-  async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
+  async create(
+    createQuestionDto: CreateQuestionDto,
+  ): Promise<QuestionDocument> {
     const { tags, ...newQuestion } = createQuestionDto;
 
     try {

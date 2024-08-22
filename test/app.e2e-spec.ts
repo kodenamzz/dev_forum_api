@@ -66,41 +66,16 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  const question = {
-    title: 'test title',
-    content: 'test content',
-    tags: ['react', 'nest'],
-    author: '66a53f08f4635a2468623031',
-  };
-  describe('Questions', () => {
-    it('/questions (POST)', () => {
-      return request(app.getHttpServer())
-        .post('/questions')
-        .send(question)
-        .expect(HttpStatus.CREATED)
-        .then((res) => {
-          expect(res.body.question._id).toBeDefined();
-        });
-    });
-
-    it('/questions (GET)', () => {
-      return request(app.getHttpServer())
-        .get('/questions')
-        .expect(200)
-        .then((res) => {
-          expect(res.body).toBeInstanceOf(Array);
-          expect(res.body).not.toHaveLength(0);
-        });
-    });
-  });
-
+  // USER --------------------------
   const user = {
     clerkId: 'user_2kTjHBpsuz9oC4YeR3JsOPg52Uf',
-    name: 'Abdulkode Pohlor',
+    name: 'Abdulkode Pohlorr',
     username: 'kodenamzz',
     email: 'abdkode.p@gmail.com',
     picture: 'https://placehold.co/600x400',
   };
+
+  let createdUser = null;
 
   describe('Users', () => {
     it('/users (POST)', () => {
@@ -109,6 +84,7 @@ describe('AppController (e2e)', () => {
         .send(user)
         .expect(HttpStatus.CREATED)
         .then((res) => {
+          createdUser = res.body.user;
           expect(res.body.user._id).toBeDefined();
           expect(res.body.user.clerkId).toEqual(user.clerkId);
           expect(res.body.user.name).toEqual(user.name);
@@ -125,6 +101,87 @@ describe('AppController (e2e)', () => {
     });
   });
 
+  // QUESTION --------------------------
+  let question = {
+    title: 'test title',
+    content: 'test content',
+    tags: ['react', 'nest'],
+    author: '',
+  };
+
+  let createdQuestion = null;
+  describe('Questions', () => {
+    question = {
+      ...question,
+      author: createdUser?._id,
+    };
+    it('/questions (POST)', () => {
+      return request(app.getHttpServer())
+        .post('/questions')
+        .send(question)
+        .expect(HttpStatus.CREATED)
+        .then((res) => {
+          createdQuestion = res.body.question;
+          expect(res.body.question._id).toBeDefined();
+        });
+    });
+
+    it('/questions (GET)', () => {
+      return request(app.getHttpServer())
+        .get('/questions')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeInstanceOf(Array);
+          expect(res.body).not.toHaveLength(0);
+        });
+    });
+
+    it('/questions/id (GET)', () => {
+      return request(app.getHttpServer())
+        .get(`/questions/${createdQuestion._id}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body._id).toBeDefined();
+          expect(res.body._id).toEqual(createdQuestion._id);
+        });
+    });
+  });
+
+  // ANSWER --------------------------
+
+  let answerData = {
+    author: '',
+    content:
+      'create a new answer will create a new instance of the Answer model but will not save it to the database',
+    question: '',
+  };
+  describe('Answers', () => {
+    it('/answers (POST)', () => {
+      answerData = {
+        ...answerData,
+        author: createdUser?._id,
+        question: createdQuestion?._id,
+      };
+      return request(app.getHttpServer())
+        .post('/answers')
+        .send(answerData)
+        .expect(HttpStatus.CREATED)
+        .then((res) => {
+          expect(res.body.answer._id).toBeDefined();
+        });
+    });
+    it('/answers (GET)', () => {
+      return request(app.getHttpServer())
+        .get(`/answers?questionId=${createdQuestion?._id}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.answers).toBeInstanceOf(Array);
+          expect(res.body.answers).not.toHaveLength(0);
+        });
+    });
+  });
+
+  // TAG --------------------------
   describe('Tags', () => {
     it('/tags (GET)', () => {
       return request(app.getHttpServer())

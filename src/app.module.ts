@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { QuestionsModule } from './questions/questions.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { TagsModule } from './tags/tags.module';
+import { AnswersModule } from './answers/answers.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -23,6 +24,7 @@ const ENV = process.env.NODE_ENV;
     QuestionsModule,
     WebhooksModule,
     TagsModule,
+    AnswersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

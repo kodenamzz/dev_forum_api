@@ -8,8 +8,8 @@ import { User, UserSchema } from '../database/schemas/user.schema';
 import {
   Interaction,
   InteractionSchema,
-} from 'src/database/schemas/Interaction.schema';
-import { Answer, AnswerSchema } from 'src/database/schemas/answer.schema';
+} from '../database/schemas/Interaction.schema';
+import { Answer, AnswerSchema } from '../database/schemas/answer.schema';
 
 @Module({
   imports: [

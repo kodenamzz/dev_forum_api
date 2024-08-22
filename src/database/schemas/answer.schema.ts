@@ -1,46 +1,33 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Question } from './question.schema';
+import { User } from './user.schema';
 
 export type AnswerDocument = HydratedDocument<Answer>;
 
 @Schema()
 export class Answer {
-  @Prop({ required: true, unique: true })
-  clerkId: string;
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId })
+  author: mongoose.Schema.Types.ObjectId;
+
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Question',
+  })
+  question: Question;
 
   @Prop({ required: true })
-  name: string;
+  content: string;
 
-  @Prop({ required: true, unique: true })
-  username: string;
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
+  upvotes: User[];
 
-  @Prop({ required: true, unique: true })
-  email: string;
-
-  @Prop()
-  password: string;
-
-  @Prop()
-  bio: string;
-
-  @Prop({ required: true })
-  picture: string;
-
-  @Prop()
-  location: string;
-
-  @Prop()
-  portfolioWebsite: string;
-
-  @Prop({ default: 0 })
-  reputation: number;
-
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }])
-  saved: Question[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
+  downvotes: User[];
 
   @Prop({ default: Date.now })
-  joinedAt: Date;
+  createdAt: Date;
 }
 
 export const AnswerSchema = SchemaFactory.createForClass(Answer);
